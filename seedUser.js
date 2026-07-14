@@ -1,10 +1,10 @@
 const prisma = require('./src/config/db.js');
 const { hashPassword } = require('./src/utils/passwordUtils.js');
 
-async function seedAdmin() {
-  const email = 'admin';
-  const password = 'kudu';
-  const name = 'admin';
+async function seedUser() {
+  const email = 'user';
+  const password = 'password';
+  const name = 'user';
 
   const existingUser = await prisma.user.findUnique({
     where: { email }
@@ -18,23 +18,23 @@ async function seedAdmin() {
       data: {
         name,
         password: hashedPassword,
-        role: 'ADMIN'
+        role: 'USER'
       }
     });
-    console.log(`Admin user with email ${email} already existed and has been updated successfully with role ADMIN.`);
+    console.log(`Regular user updated successfully.`);
   } else {
     await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: 'ADMIN'
+        role: 'USER'
       }
     });
-    console.log(`New admin user with email ${email} created successfully with role ADMIN.`);
+    console.log(`Regular user created successfully.`);
   }
 }
 
-seedAdmin()
+seedUser()
   .catch(console.error)
   .finally(() => prisma.$disconnect());

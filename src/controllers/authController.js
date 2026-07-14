@@ -92,14 +92,22 @@ exports.login = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { name, phone } = req.body;
+        const { name, phone, email } = req.body;
+
+        // Check if email is already taken by another user
+        if (email) {
+            const existing = await prisma.user.findFirst({ where: { email } });
+            if (existing && existing.id !== userId) {
+                return res.status(400).json({ success: false, message: 'Email already in use' });
+            }
+        }
+
+        const dataToUpdate = { name, phone: phone || null };
+        if (email) dataToUpdate.email = email;
 
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { 
-                name, 
-                phone: phone || null 
-            }
+            data: dataToUpdate
         });
 
         res.status(200).json({

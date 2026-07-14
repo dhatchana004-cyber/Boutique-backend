@@ -11,7 +11,7 @@ exports.getProducts = async (req, res) => {
     }
 
     if (category) {
-      query.where.category = category
+      query.where.category = { contains: category, mode: 'insensitive' }
     }
 
     if (search) {
