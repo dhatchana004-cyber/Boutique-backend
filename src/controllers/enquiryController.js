@@ -66,3 +66,21 @@ exports.updateEnquiryStatus = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error while updating enquiry' });
     }
 };
+
+// @desc    Delete enquiry
+// @route   DELETE /api/enquiries/:id
+// @access  Private/Admin
+exports.deleteEnquiry = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.enquiry.delete({
+            where: { id: parseInt(id) }
+        });
+
+        res.status(200).json({ success: true, message: 'Enquiry deleted successfully' });
+    } catch (error) {
+        console.error('Delete Enquiry Error:', error);
+        res.status(500).json({ success: false, message: 'Server error while deleting enquiry' });
+    }
+};

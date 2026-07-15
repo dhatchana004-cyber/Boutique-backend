@@ -16,6 +16,7 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL,
     'http://localhost:5173',
+    'http://localhost:5174',
     'https://boutique-two-sigma.vercel.app'
   ].filter(Boolean),
   credentials: true,

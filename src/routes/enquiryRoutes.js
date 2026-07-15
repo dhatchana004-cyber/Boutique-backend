@@ -13,5 +13,6 @@ const adminGuard = (req, res, next) => {
 router.post('/', enquiryController.submitEnquiry);
 router.get('/', protect, adminGuard, enquiryController.getEnquiries);
 router.put('/:id', protect, adminGuard, enquiryController.updateEnquiryStatus);
+router.delete('/:id', protect, adminGuard, enquiryController.deleteEnquiry);
 
 module.exports = router;
