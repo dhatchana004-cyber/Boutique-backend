@@ -15,11 +15,14 @@ exports.getProducts = async (req, res) => {
     }
 
     if (search) {
-      query.where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { brand: { contains: search, mode: 'insensitive' } },
-      ]
+      const searchWords = search.split(' ').filter(w => w.trim().length > 0)
+      if (searchWords.length > 0) {
+        query.where.OR = [
+          { AND: searchWords.map(word => ({ name: { contains: word, mode: 'insensitive' } })) },
+          { AND: searchWords.map(word => ({ description: { contains: word, mode: 'insensitive' } })) },
+          { AND: searchWords.map(word => ({ brand: { contains: word, mode: 'insensitive' } })) },
+        ]
+      }
     }
 
     if (sort) {

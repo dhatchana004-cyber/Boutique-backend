@@ -198,3 +198,26 @@ model Wishlist {
   @@unique([userId, productId])
   @@map("wishlist")
 }
+
+// ── Site Content ──────────────────────────────────────
+model SiteContent {
+  pageName  String   @id // e.g., 'home', 'boutique', 'contact', 'return-gifts'
+  content   Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_contents")
+}
+
+// ── Enquiries ─────────────────────────────────────────
+model Enquiry {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String
+  enquiryType String
+  message     String
+  status      String   @default("UNREAD") // UNREAD, READ, RESPONDED
+  createdAt   DateTime @default(now())
+
+  @@map("enquiries")
+}

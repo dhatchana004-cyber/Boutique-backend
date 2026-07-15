@@ -38,4 +38,7 @@ router.delete('/products/:id', admin.deleteProduct)
 // Upload Image
 router.post('/upload', upload.single('image'), admin.uploadImage)
 
+// Content Management
+router.put('/content/:pageName', admin.updateContent)
+
 module.exports = router

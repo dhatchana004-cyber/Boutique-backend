@@ -48,6 +48,8 @@ app.use('/api/cart',      require('./routes/cart.routes'))
 app.use('/api/payment',   require('./routes/paymentRoutes'))
 app.use('/api/wishlist',  require('./routes/wishlistRoutes'))
 app.use('/api/admin',     require('./routes/adminRoutes'))
+app.use('/api/content',   require('./routes/contentRoutes'))
+app.use('/api/enquiries', require('./routes/enquiryRoutes'))
 
 // ── 404 Handler ───────────────────────────────────────
 app.use((req, res) => {

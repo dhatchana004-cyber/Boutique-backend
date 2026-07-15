@@ -295,3 +295,22 @@ exports.uploadImage = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to upload image' })
   }
 }
+
+// PUT /api/admin/content/:pageName
+exports.updateContent = async (req, res) => {
+  try {
+    const { pageName } = req.params;
+    const content = req.body;
+    
+    const updatedContent = await prisma.siteContent.upsert({
+      where: { pageName },
+      update: { content },
+      create: { pageName, content }
+    });
+
+    res.json({ success: true, data: updatedContent.content });
+  } catch (error) {
+    console.error('Error updating site content:', error);
+    res.status(500).json({ success: false, message: 'Failed to update content' });
+  }
+}
