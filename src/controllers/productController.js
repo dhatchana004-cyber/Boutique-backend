@@ -21,6 +21,7 @@ exports.getProducts = async (req, res) => {
           { AND: searchWords.map(word => ({ name: { contains: word, mode: 'insensitive' } })) },
           { AND: searchWords.map(word => ({ description: { contains: word, mode: 'insensitive' } })) },
           { AND: searchWords.map(word => ({ brand: { contains: word, mode: 'insensitive' } })) },
+          { AND: searchWords.map(word => ({ category: { contains: word, mode: 'insensitive' } })) },
         ]
       }
     }

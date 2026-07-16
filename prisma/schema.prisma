@@ -6,34 +6,25 @@ datasource db {
   provider = "postgresql"
 }
 
-// ── Users ─────────────────────────────────────────────
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  email     String   @unique
+  email     String     @unique
   password  String
   avatar    String?
   phone     String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  role      Role       @default(USER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   addresses Address[]
   cartItems CartItem[]
   orders    Order[]
-  wishlist  Wishlist[]
   reviews   Review[]
+  wishlist  Wishlist[]
 
   @@map("users")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
-// ── Addresses ─────────────────────────────────────────
 model Address {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -47,17 +38,14 @@ model Address {
   phone     String
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
-
-  // Relations
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders  Order[]
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
 
   @@map("addresses")
 }
 
-// ── Products ──────────────────────────────────────────
 model Product {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
   brand         String
   category      String
@@ -66,38 +54,34 @@ model Product {
   image         String
   images        String[]
   specs         String[]
-  isNew         Boolean  @default(false)
-  inStock       Boolean  @default(true)
-  stockQuantity Int      @default(0)
-  rating        Float    @default(0)
-  numReviews    Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  wishlist   Wishlist[]
-  reviews    Review[]
+  isNew         Boolean     @default(false)
+  inStock       Boolean     @default(true)
+  stockQuantity Int         @default(0)
+  rating        Float       @default(0)
+  numReviews    Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  wishlist      Wishlist[]
 
   @@map("products")
 }
 
-// ── Reviews ───────────────────────────────────────────
 model Review {
   id        Int      @id @default(autoincrement())
-  rating    Int      // 1 to 5
+  rating    Int
   comment   String
   userId    Int
   productId Int
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@map("reviews")
 }
 
-// ── Cart ──────────────────────────────────────────────
 model CartItem {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -105,16 +89,13 @@ model CartItem {
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
   @@map("cart_items")
 }
 
-// ── Orders ────────────────────────────────────────────
 model Order {
   id            Int           @id @default(autoincrement())
   userId        Int
@@ -128,14 +109,76 @@ model Order {
   paymentStatus PaymentStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-
-  // Relations
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address Address? @relation(fields: [addressId], references: [id])
-  items   OrderItem[]
-  payment Payment?
+  items         OrderItem[]
+  address       Address?      @relation(fields: [addressId], references: [id])
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment       Payment?
 
   @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           Int           @unique
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  amount            Float
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist")
+}
+
+model SiteContent {
+  pageName  String   @id
+  content   Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_contents")
+}
+
+model Enquiry {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String
+  enquiryType String
+  message     String
+  status      String   @default("UNREAD")
+  createdAt   DateTime @default(now())
+
+  @@map("enquiries")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum OrderStatus {
@@ -150,74 +193,4 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
-}
-
-// ── Order Items ───────────────────────────────────────
-model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
-  quantity  Int
-  price     Float
-
-  // Relations
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
-
-  @@map("order_items")
-}
-
-// ── Payments ──────────────────────────────────────────
-model Payment {
-  id                String        @id @default(cuid())
-  orderId           Int           @unique
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  razorpaySignature String?
-  amount            Float
-  status            PaymentStatus @default(PENDING)
-  createdAt         DateTime      @default(now())
-
-  // Relations
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@map("payments")
-}
-
-// ── Wishlist ──────────────────────────────────────────
-model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  createdAt DateTime @default(now())
-
-  // Relations
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, productId])
-  @@map("wishlist")
-}
-
-// ── Site Content ──────────────────────────────────────
-model SiteContent {
-  pageName  String   @id // e.g., 'home', 'boutique', 'contact', 'return-gifts'
-  content   Json
-  updatedAt DateTime @updatedAt
-
-  @@map("site_contents")
-}
-
-// ── Enquiries ─────────────────────────────────────────
-model Enquiry {
-  id          Int      @id @default(autoincrement())
-  firstName   String
-  lastName    String
-  email       String
-  enquiryType String
-  message     String
-  status      String   @default("UNREAD") // UNREAD, READ, RESPONDED
-  createdAt   DateTime @default(now())
-
-  @@map("enquiries")
 }
