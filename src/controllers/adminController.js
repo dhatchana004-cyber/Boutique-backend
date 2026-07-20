@@ -189,7 +189,7 @@ exports.updateOrderStatus = async (req, res) => {
 exports.createCustomer = async (req, res) => {
   try {
     const { name, email, phone, role, password, address, city, state, pincode } = req.body
-    
+
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required' })
     }
@@ -301,7 +301,7 @@ exports.updateContent = async (req, res) => {
   try {
     const { pageName } = req.params;
     const content = req.body;
-    
+
     const updatedContent = await prisma.siteContent.upsert({
       where: { pageName },
       update: { content },

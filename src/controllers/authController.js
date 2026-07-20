@@ -19,11 +19,11 @@ exports.register = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         const newUser = await prisma.user.create({
-            data: { 
-                name, 
-                email, 
+            data: {
+                name,
+                email,
                 phone: phone || null,
-                password: hashedPassword 
+                password: hashedPassword
             }
         });
 
@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
                 name: newUser.name,
                 email: newUser.email,
                 phone: newUser.phone
-            }       
+            }
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -74,13 +74,13 @@ exports.login = async (req, res) => {
             message: `Welcome back, ${user.name}`,
             accessToken,
             refreshToken,
-            user: { 
-                id: user.id, 
-                name: user.name, 
-                email: user.email, 
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
                 phone: user.phone,
                 avatar: user.avatar,
-                role: user.role 
+                role: user.role
             }
         });
     } catch (error) {
