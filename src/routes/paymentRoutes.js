@@ -14,6 +14,10 @@ router.use(protect)
 // POST /api/payment/create-order  → create Razorpay order + DB record
 router.post('/create-order', createOrder)
 
+// POST /api/payment/cod-order     → create COD order + DB record
+const { createCODOrder } = require('../controllers/paymentController');
+router.post('/cod-order', createCODOrder)
+
 // POST /api/payment/verify        → verify signature, update DB, clear cart
 router.post('/verify', verifyPayment)
 

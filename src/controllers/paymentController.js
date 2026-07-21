@@ -102,6 +102,71 @@ exports.createOrder = async (req, res) => {
 }
 
 // ─────────────────────────────────────────────────────────────
+// POST /api/payment/cod-order
+// Body: { cartItems, shippingInfo, shippingCost, tax }
+// Creates a COD Order record with PENDING payment status
+// ─────────────────────────────────────────────────────────────
+exports.createCODOrder = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { cartItems, shippingInfo, shippingCost = 0, tax = 0 } = req.body
+
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ success: false, message: 'Cart is empty' })
+    }
+
+    const productIds = cartItems.map(i => i.productId)
+    const products   = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, price: true }
+    })
+    const priceMap = Object.fromEntries(products.map(p => [p.id, p.price]))
+
+    let subtotal = 0
+    for (const item of cartItems) {
+      const price = priceMap[item.productId]
+      if (!price) {
+        return res.status(400).json({ success: false, message: `Product ${item.productId} not found` })
+      }
+      subtotal += price * item.quantity
+    }
+
+    const total = subtotal + shippingCost + tax
+
+    const dbOrder = await prisma.order.create({
+      data: {
+        userId,
+        subtotal,
+        shippingCost,
+        tax,
+        total,
+        paymentMethod:  'cod',
+        paymentStatus:  'PENDING',
+        status:         'PROCESSING',
+        items: {
+          create: cartItems.map(item => ({
+            productId: item.productId,
+            quantity:  item.quantity,
+            price:     priceMap[item.productId],
+          }))
+        },
+      }
+    })
+
+    // Clear the user's cart
+    await prisma.cartItem.deleteMany({ where: { userId } })
+
+    res.status(201).json({
+      success: true,
+      data: { dbOrderId: dbOrder.id }
+    })
+  } catch (error) {
+    console.error('❌ createCODOrder error:', error)
+    res.status(500).json({ success: false, message: 'Failed to create COD order' })
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // POST /api/payment/verify
 // Body: { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId }
 // Validates HMAC signature; on success → marks order PAID & clears cart
