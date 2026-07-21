@@ -88,6 +88,7 @@ exports.getProducts = async (req, res) => {
         brand: true,
         category: true,
         price: true,
+        originalPrice: true,
         image: true,
         inStock: true,
         stockQuantity: true,
@@ -108,11 +109,12 @@ exports.getProducts = async (req, res) => {
 // POST /api/admin/products
 exports.createProduct = async (req, res) => {
   try {
-    const { name, brand, category, price, description, image, images, specs, isNew, stockQuantity } = req.body
+    const { name, brand, category, price, originalPrice, description, image, images, specs, isNew, stockQuantity } = req.body
     const product = await prisma.product.create({
       data: {
         name, brand, category,
         price: parseFloat(price),
+        originalPrice: originalPrice ? parseFloat(originalPrice) : null,
         description: description || '',
         image: image || '',
         images: images || [],
@@ -135,6 +137,7 @@ exports.updateProduct = async (req, res) => {
     const { id } = req.params
     const data = { ...req.body }
     if (data.price) data.price = parseFloat(data.price)
+    if (data.originalPrice !== undefined) data.originalPrice = data.originalPrice ? parseFloat(data.originalPrice) : null
     if (data.stockQuantity !== undefined) {
       data.stockQuantity = parseInt(data.stockQuantity)
       data.inStock = data.stockQuantity > 0
