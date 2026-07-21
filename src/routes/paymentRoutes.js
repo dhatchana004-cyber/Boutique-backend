@@ -27,4 +27,8 @@ router.get('/orders', getMyOrders)
 // PATCH /api/payment/orders/:id/cancel
 router.patch('/orders/:id/cancel', cancelOrder)
 
+// PATCH /api/payment/orders/:id/return
+const { returnOrder } = require('../controllers/paymentController')
+router.patch('/orders/:id/return', returnOrder)
+
 module.exports = router

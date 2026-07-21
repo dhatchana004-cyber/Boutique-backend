@@ -289,3 +289,39 @@ exports.cancelOrder = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to cancel order' })
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// PATCH /api/payment/orders/:id/return
+// Returns an order — only allowed when status === DELIVERED
+// ─────────────────────────────────────────────────────────────
+exports.returnOrder = async (req, res) => {
+  try {
+    const userId  = req.user.id
+    const orderId = parseInt(req.params.id)
+
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId }
+    })
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' })
+    }
+
+    if (order.status !== 'DELIVERED') {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot return an order that is ${order.status.toLowerCase()}`
+      })
+    }
+
+    const updated = await prisma.order.update({
+      where: { id: orderId },
+      data:  { status: 'RETURNED' }
+    })
+
+    res.json({ success: true, data: updated, message: 'Order returned successfully' })
+  } catch (error) {
+    console.error('❌ returnOrder error:', error)
+    res.status(500).json({ success: false, message: 'Failed to return order' })
+  }
+}
