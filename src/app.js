@@ -17,7 +17,11 @@ app.use(cors({
     process.env.CLIENT_URL,
     'http://localhost:5173',
     'http://localhost:5174',
-    'https://boutique-two-sigma.vercel.app'
+    'https://boutique-two-sigma.vercel.app',
+    'https://vedhikaboutique.com',
+    'http://vedhikaboutique.com',
+    'https://www.vedhikaboutique.com',
+    'http://www.vedhikaboutique.com'
   ].filter(Boolean),
   credentials: true,
 }))
