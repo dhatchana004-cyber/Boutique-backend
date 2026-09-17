@@ -155,6 +155,15 @@ exports.deleteProduct = async (req, res) => {
   try {
     const productId = parseInt(req.params.id)
 
+    if (isNaN(productId)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' })
+    }
+
+    const product = await prisma.product.findUnique({ where: { id: productId } })
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' })
+    }
+
     // Delete related records first to avoid foreign key violations
     await prisma.$transaction([
       prisma.cartItem.deleteMany({ where: { productId } }),
@@ -164,10 +173,10 @@ exports.deleteProduct = async (req, res) => {
       prisma.product.delete({ where: { id: productId } }),
     ])
 
-    res.json({ success: true, message: 'Product deleted' })
+    res.json({ success: true, message: 'Product deleted successfully' })
   } catch (err) {
     console.error('Delete product error:', err)
-    res.status(500).json({ success: false, message: 'Failed to delete product' })
+    res.status(500).json({ success: false, message: 'Failed to delete product', error: err.message })
   }
 }
 
@@ -185,6 +194,29 @@ exports.updateOrderStatus = async (req, res) => {
   } catch (err) {
     console.error('Update order status error:', err)
     res.status(500).json({ success: false, message: 'Failed to update order' })
+  }
+}
+
+// DELETE /api/admin/orders/:id
+exports.deleteOrder = async (req, res) => {
+  try {
+    const orderId = parseInt(req.params.id)
+
+    if (isNaN(orderId)) {
+      return res.status(400).json({ success: false, message: 'Invalid order ID' })
+    }
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } })
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' })
+    }
+
+    await prisma.order.delete({ where: { id: orderId } })
+
+    res.json({ success: true, message: 'Order deleted successfully' })
+  } catch (err) {
+    console.error('Delete order error:', err)
+    res.status(500).json({ success: false, message: 'Failed to delete order', error: err.message })
   }
 }
 

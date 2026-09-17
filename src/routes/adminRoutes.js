@@ -21,6 +21,7 @@ router.get('/stats',     admin.getStats)
 // Orders
 router.get('/orders',              admin.getOrders)
 router.patch('/orders/:id/status', admin.updateOrderStatus)
+router.delete('/orders/:id',        admin.deleteOrder)
 
 // Customers
 router.get('/customers',              admin.getCustomers)
